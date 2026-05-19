@@ -11,297 +11,7 @@
 @section('page_summary', 'Review conversations, inspect listing enquiries, and reply from the professional workspace.')
 
 @section('styles')
-<style>
-    /* Round profile avatars (theme sets img { border-radius: 3px }) */
-    .apps-chat .avatar-image,
-    .apps-chat .single-chat-item .avatar-image,
-    .apps-chat .content-area-header .avatar-image,
-    .apps-chat #chat-conversation-list .avatar-image,
-    .apps-chat .flex-shrink-0 > .avatar-image {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        border-radius: 50% !important;
-        overflow: hidden !important;
-        flex-shrink: 0;
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        min-height: 40px;
-    }
-    .apps-chat .avatar-image img,
-    .apps-chat .single-chat-item .avatar-image img,
-    .apps-chat .content-area-header .avatar-image img,
-    .apps-chat #chat-conversation-list .avatar-image img {
-        width: 100% !important;
-        height: 100% !important;
-        max-width: none !important;
-        object-fit: cover !important;
-        border-radius: 50% !important;
-        display: block;
-    }
-    .apps-chat .avatar-text.rounded-circle,
-    .apps-chat .single-chat-item .avatar-text:not(.file-download):not(.avatar-xxl),
-    .apps-chat .content-area-header .avatar-text:not(.avatar-md),
-    .apps-chat #chat-conversation-list .avatar-text:not(.avatar-xs):not(.avatar-sm) {
-        border-radius: 50% !important;
-    }
-
-    /* Chat column: scroll messages, composer fixed at bottom of panel */
-    .apps-chat .main-content.apps-chat-layout {
-        align-items: stretch;
-        min-height: calc(100vh - 140px);
-    }
-    .apps-chat .content-area.chat-content-panel {
-        display: flex;
-        flex-direction: column;
-        min-height: 0;
-        flex: 1 1 auto;
-    }
-    .apps-chat .chat-messages-scroll {
-        flex: 1 1 auto;
-        min-height: 0;
-        overflow-y: auto;
-    }
-    .apps-chat .chat-composer-wrap {
-        position: relative;
-        flex-shrink: 0;
-        background: #fff;
-        border-top: 1px solid var(--bs-gray-300, #dee2e6);
-        z-index: 5;
-        box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.06);
-    }
-    .apps-chat .chat-send-loader {
-        position: absolute;
-        inset: 0;
-        z-index: 25;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        background: rgba(255, 255, 255, 0.88);
-        backdrop-filter: blur(2px);
-    }
-    .apps-chat .chat-send-loader.is-active {
-        display: flex;
-    }
-    .apps-chat .chat-composer-form {
-        min-height: 59px;
-    }
-    .apps-chat .chat-message-input {
-        resize: none;
-        overflow-y: hidden;
-        line-height: 1.45;
-        max-height: 180px;
-        padding-top: 0.95rem;
-        padding-bottom: 0.95rem;
-    }
-    .apps-chat .chat-message-input:focus {
-        box-shadow: none;
-    }
-    .apps-chat .chat-attachment-preview {
-        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-        background: linear-gradient(180deg, #f4f6f9 0%, #fafbfc 100%);
-    }
-    .apps-chat .chat-attachment-preview-header {
-        padding: 0.5rem 0.75rem 0.35rem;
-    }
-    .apps-chat .chat-attachment-label {
-        font-size: 0.6875rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        color: #6c757d;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-    }
-    .apps-chat .chat-attachment-label .badge {
-        font-size: 0.65rem;
-        font-weight: 600;
-        padding: 0.2em 0.45em;
-    }
-    .apps-chat .chat-attachment-chips {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        padding: 0 0.75rem 0.65rem;
-        max-height: 140px;
-        overflow-y: auto;
-    }
-    .apps-chat .chat-file-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        max-width: min(100%, 280px);
-        padding: 0.35rem 0.35rem 0.35rem 0.45rem;
-        background: #fff;
-        border: 1px solid #e2e5ea;
-        border-radius: 10px;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    .apps-chat .chat-file-chip:hover {
-        border-color: #c5cad3;
-        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.07);
-    }
-    .apps-chat .chat-file-chip-icon {
-        width: 36px;
-        height: 36px;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 0.625rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        line-height: 1;
-    }
-    .apps-chat .chat-file-chip-icon--image {
-        background: #e8f4fd;
-        color: #0d6efd;
-    }
-    .apps-chat .chat-file-chip-icon--pdf {
-        background: #fde8e8;
-        color: #dc3545;
-    }
-    .apps-chat .chat-file-chip-icon--doc {
-        background: #e8eefd;
-        color: #3949ab;
-    }
-    .apps-chat .chat-file-chip-icon--default {
-        background: #f0f2f5;
-        color: #495057;
-    }
-    .apps-chat .chat-file-chip-body {
-        min-width: 0;
-        flex: 1;
-    }
-    .apps-chat .chat-file-chip-name {
-        font-size: 0.8125rem;
-        font-weight: 600;
-        color: #212529;
-        line-height: 1.25;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-    }
-    .apps-chat .chat-file-chip-meta {
-        font-size: 0.6875rem;
-        color: #868e96;
-        margin-top: 0.1rem;
-    }
-    .apps-chat .chat-file-chip-remove {
-        width: 28px;
-        height: 28px;
-        padding: 0;
-        border: none;
-        border-radius: 6px;
-        background: transparent;
-        color: #adb5bd;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        font-size: 1.15rem;
-        line-height: 1;
-        transition: color 0.15s ease, background 0.15s ease;
-    }
-    .apps-chat .chat-file-chip-remove:hover {
-        color: #dc3545;
-        background: rgba(220, 53, 69, 0.08);
-    }
-    .apps-chat .btn-chat-attachments-clear {
-        font-size: 0.6875rem;
-        font-weight: 600;
-        text-decoration: none;
-        padding: 0.15rem 0;
-    }
-    .apps-chat .btn-chat-attachments-clear:hover {
-        text-decoration: underline;
-    }
-    /* Ensure attachment links receive clicks (theme scroll / stacking quirks). */
-    .apps-chat .chat-attachment-row {
-        position: relative;
-        z-index: 1;
-    }
-    .apps-chat a.chat-attachment-download {
-        position: relative;
-        z-index: 2;
-        cursor: pointer;
-        flex-shrink: 0;
-        min-width: 2.75rem;
-        min-height: 2.75rem;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-    .apps-chat .chat-content-panel {
-        position: relative;
-    }
-    .apps-chat .chat-panel-loader {
-        position: absolute;
-        inset: 0;
-        z-index: 30;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        gap: 0.75rem;
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(2px);
-    }
-    .apps-chat .chat-panel-loader.is-active {
-        display: flex;
-    }
-    .apps-chat .chat-panel-load-error {
-        position: relative;
-        z-index: 28;
-    }
-    .apps-chat #chat-panel-body {
-        flex: 1 1 auto;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-    }
-    .badge {
-        background-color: #6221d2 !important;
-    }
-    .js-chat-image-preview {
-        color: #5e27d5;
-    }
-    .rounded-5 {
-        border-radius: 12px !important;
-    }
-    .apps-chat #chat-conversation-list a.single-item {
-        transition: background-color 0.15s ease, color 0.15s ease;
-    }
-    .apps-chat #chat-conversation-list a.single-item:hover,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active {
-        background-color: #560ce3 !important;
-        color: #fff !important;
-    }
-    .apps-chat #chat-conversation-list a.single-item:hover .text-dark,
-    .apps-chat #chat-conversation-list a.single-item:hover .text-muted,
-    .apps-chat #chat-conversation-list a.single-item:hover .fw-semibold,
-    .apps-chat #chat-conversation-list a.single-item:hover .fs-10,
-    .apps-chat #chat-conversation-list a.single-item:hover .fs-11,
-    .apps-chat #chat-conversation-list a.single-item:hover .fs-12,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .text-dark,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .text-muted,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .fw-semibold,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .fs-10,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .fs-11,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .fs-12 {
-        color: #fff !important;
-    }
-    .apps-chat #chat-conversation-list a.single-item:hover .badge,
-    .apps-chat #chat-conversation-list a.single-item.chat-item-active .badge {
-        background-color: rgba(255, 255, 255, 0.22) !important;
-        color: #fff !important;
-    }
-</style>
+@include('professional.dashboard.partials.chat-styles')
 @endsection
 
 @section('content')
@@ -323,11 +33,9 @@
                 </div>
 
                 <div class="content-sidebar-body">
-                    <div class="py-3 px-4 border-bottom bg-white">
-                        <div class="input-group">
-                            <span class="input-group-text bg-transparent border-end-0"><i class="feather-search"></i></span>
-                            <input id="chat-search-input" type="search" class="form-control border-start-0" placeholder="Search conversations...">
-                        </div>
+                    <div class="chat-inbox-search-wrap position-relative">
+                        <i class="feather-search chat-inbox-search-icon"></i>
+                        <input id="chat-search-input" type="search" class="form-control chat-inbox-search w-100" placeholder="Search by name or listing…" autocomplete="off">
                     </div>
 
                     <div class="content-sidebar-items" id="chat-conversation-list">
@@ -347,6 +55,12 @@
                                 $conversationAvatarLabel = $isProfessional
                                     ? ($counterpartyUser?->name ?: $listingName)
                                     : $listingName;
+                                $counterpartyName = $counterpartyUser?->name
+                                    ?: ($isProfessional ? 'Buyer' : 'Seller');
+                                $inboxPrimaryTitle = $isProfessional ? $counterpartyName : $listingName;
+                                $inboxSecondaryTitle = $isProfessional
+                                    ? $listingName
+                                    : $counterpartyName;
 
                                 if ($isProfessional) {
                                     $isSelected = ($selectedUserId ?? 0) === (int) $conversation->user_id && $selectedProjectId === (int) $conversation->project_id;
@@ -361,37 +75,38 @@
                             @endphp
                             <a
                                 href="{{ route('professional.chat', $routeParams) }}"
-                                data-search="{{ strtolower(trim(($listingName ?? '') . ' ' . ($preview ?? ''))) }}"
-                                class="p-4 d-flex position-relative border-bottom single-item text-decoration-none {{ $isSelected ? 'chat-item-active' : '' }}"
+                                data-search="{{ strtolower(trim(($inboxPrimaryTitle ?? '') . ' ' . ($inboxSecondaryTitle ?? '') . ' ' . ($preview ?? ''))) }}"
+                                class="chat-inbox-item single-item text-decoration-none {{ $isSelected ? 'chat-item-active' : '' }} {{ $isUnread ? 'chat-inbox-item--unread' : '' }}"
                             >
-                                <div class="flex-shrink-0">
+                                <div class="chat-inbox-item__avatar">
                                     @if ($conversationAvatar)
                                         <div class="avatar-image">
-                                            <img src="{{ $conversationAvatar }}" alt="{{ $listingName }}">
+                                            <img src="{{ $conversationAvatar }}" alt="{{ $inboxPrimaryTitle }}">
                                         </div>
                                     @else
-                                        <div class="avatar-text bg-primary text-white rounded-circle">{{ strtoupper(Str::substr($conversationAvatarLabel, 0, 1)) }}</div>
+                                        <div class="avatar-text bg-primary text-white">{{ strtoupper(Str::substr($conversationAvatarLabel, 0, 1)) }}</div>
                                     @endif
                                 </div>
-                                <div class="ms-3 item-desc flex-grow-1 overflow-hidden">
-                                    <div class="w-100 d-flex align-items-center justify-content-between gap-2">
-                                        <div class="me-2 overflow-hidden">
-                                            <div class="fw-semibold text-dark text-truncate">{{ $listingName }}</div>
-                                            <div class="fs-11 text-muted text-truncate">Listing chat</div>
-                                        </div>
-                                        <div class="text-end flex-shrink-0">
-                                            <div class="fs-10 fw-medium text-muted text-uppercase">{{ optional($conversation->created_at)->diffForHumans() }}</div>
-                                            @if ($isUnread)
-                                                <span class="badge bg-danger rounded-pill mt-2">New</span>
-                                            @endif
-                                        </div>
+                                <div class="chat-inbox-item__body">
+                                    <div class="chat-inbox-item__top">
+                                        <span class="chat-inbox-item__title">{{ $inboxPrimaryTitle }}</span>
+                                        <span class="chat-inbox-item__time">{{ optional($conversation->created_at)->diffForHumans() }}</span>
                                     </div>
-                                    <p class="fs-12 {{ $isUnread ? 'fw-semibold text-dark' : 'text-muted' }} mt-2 mb-0 text-truncate-2-line">{{ $preview }}</p>
+                                    <div class="chat-inbox-item__subtitle">
+                                        <i class="feather-{{ $isProfessional ? 'briefcase' : 'user' }}"></i>
+                                        <span class="text-truncate">{{ $inboxSecondaryTitle }}</span>
+                                    </div>
+                                    <p class="chat-inbox-item__preview">{{ $preview }}</p>
                                 </div>
+                                @if ($isUnread)
+                                    <span class="chat-inbox-item__badge" aria-label="Unread">New</span>
+                                @endif
                             </a>
                         @empty
-                            <div class="p-4 text-center text-muted" id="chat-empty-state">
-                                No conversations found yet.
+                            <div class="chat-inbox-empty" id="chat-empty-state">
+                                <i class="feather-inbox d-block"></i>
+                                <div class="fw-semibold mb-1">No conversations yet</div>
+                                <div class="fs-12">@if ($isProfessional)When a buyer enquires on your listing, it will appear here.@elseYour conversations about listings will appear here.@endif</div>
                             </div>
                         @endforelse
                         <div class="p-4 text-center text-muted d-none" id="chat-no-search-result">
@@ -598,21 +313,22 @@
                 safePreview = 'Open conversation';
             }
 
-            var previewNode = item.querySelector('p.fs-12');
+            var previewNode = item.querySelector('.chat-inbox-item__preview');
             if (previewNode) {
                 previewNode.textContent = safePreview;
-                previewNode.classList.remove('text-muted');
-                previewNode.classList.add('fw-semibold', 'text-dark');
             }
 
-            var timeNode = item.querySelector('.fs-10.fw-medium');
+            var timeNode = item.querySelector('.chat-inbox-item__time');
             if (timeNode) {
                 timeNode.textContent = 'Just now';
             }
 
-            var listingNameNode = item.querySelector('.fw-semibold.text-dark');
-            var listingName = listingNameNode ? listingNameNode.textContent.trim() : '';
-            item.setAttribute('data-search', (listingName + ' ' + safePreview).toLowerCase().trim());
+            var titleNode = item.querySelector('.chat-inbox-item__title');
+            var subtitleNode = item.querySelector('.chat-inbox-item__subtitle span');
+            var title = titleNode ? titleNode.textContent.trim() : '';
+            var subtitle = subtitleNode ? subtitleNode.textContent.trim() : '';
+            item.setAttribute('data-search', (title + ' ' + subtitle + ' ' + safePreview).toLowerCase().trim());
+            item.classList.add('chat-inbox-item--unread');
         }
 
         function loadConversationFromUrl(url, options) {

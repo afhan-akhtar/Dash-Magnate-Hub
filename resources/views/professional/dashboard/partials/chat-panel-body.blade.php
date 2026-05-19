@@ -33,41 +33,35 @@
 @endphp
 
 @if ($selectedConversation || (($selectedUserId ?? 0) && $selectedProjectId) || (($selectedProfessionalId ?? 0) && $selectedProjectId))
-    <div class="content-area-header sticky-top flex-shrink-0 bg-white">
-        <div class="page-header-left hstack gap-4">
-            <a href="javascript:void(0);" class="app-sidebar-open-trigger">
+    <div class="chat-thread-header sticky-top flex-shrink-0">
+        <div class="page-header-left hstack gap-3">
+            <a href="javascript:void(0);" class="app-sidebar-open-trigger d-lg-none">
                 <i class="feather-align-left fs-20"></i>
             </a>
-            <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center gap-3 min-w-0">
                 @if ($headerAvatar)
                     <div class="avatar-image">
                         <img src="{{ $headerAvatar }}" alt="{{ $headerLabel }}">
                     </div>
                 @else
-                    <div class="avatar-text bg-primary text-white rounded-circle">{{ strtoupper(Str::substr($headerLabel, 0, 1)) }}</div>
+                    <div class="avatar-text bg-primary text-white">{{ strtoupper(Str::substr($headerLabel, 0, 1)) }}</div>
                 @endif
-                <div>
-                    <div class="fw-bold d-flex align-items-center">{{ $headerLabel }}</div>
-                    <div class="fs-12 text-muted mt-1">
-                        {{ $listingName }}
-                        @if ($selectedProject)
-                            <span class="mx-2">•</span>
+                <div class="min-w-0">
+                    <h2 class="chat-thread-header__name mb-0 text-truncate">{{ $headerLabel }}</h2>
+                    <p class="chat-thread-header__context mb-0 text-truncate">
+                        @if ($isProfessional && $selectedProject)
+                            <a href="{{ route('professional.listings.show', $selectedProject->id) }}">{{ $listingName }}</a>
+                            <span class="mx-1">•</span>
                             Listing #{{ $selectedProject->id }}
+                        @else
+                            <i class="feather-briefcase chat-thread-header__listing-icon" aria-hidden="true"></i>
+                            <span class="text-truncate">{{ $listingName }}</span>
+                            @if ($selectedProject)
+                                <span class="mx-1">•</span>Listing #{{ $selectedProject->id }}
+                            @endif
                         @endif
-                    </div>
+                    </p>
                 </div>
-            </div>
-        </div>
-        <div class="page-header-right ms-auto">
-            <div class="d-flex align-items-center justify-content-center gap-2">
-                @if(false)
-                <a href="{{ route('professional.listings.index') }}" class="avatar-text avatar-md" data-bs-toggle="tooltip" title="Open Listings">
-                    <i class="feather-briefcase"></i>
-                </a>
-                <a href="{{ route('professional.settings') }}" class="avatar-text avatar-md" data-bs-toggle="tooltip" title="Profile Settings">
-                    <i class="feather-settings"></i>
-                </a>
-                @endif
             </div>
         </div>
     </div>
@@ -107,27 +101,28 @@
                 }
             @endphp
 
-            <div class="single-chat-item mb-5">
-                <div class="d-flex {{ $isOutgoing ? 'flex-row-reverse' : '' }} align-items-center gap-3 mb-3">
+            <div class="single-chat-item {{ $isOutgoing ? 'single-chat-item--outgoing' : 'single-chat-item--incoming' }}">
+                <div class="d-flex {{ $isOutgoing ? 'flex-row-reverse' : '' }} align-items-center gap-2 mb-2">
                     @if ($messageAvatar)
                         <div class="avatar-image">
                             <img src="{{ $messageAvatar }}" alt="{{ $messageUserName }}">
                         </div>
                     @else
-                        <div class="avatar-text {{ $isOutgoing ? 'bg-dark text-white' : 'bg-primary text-white' }} rounded-circle">
+                        <div class="avatar-text {{ $isOutgoing ? 'bg-dark text-white' : 'bg-primary text-white' }}">
                             {{ strtoupper(Str::substr($messageUserName, 0, 1)) }}
                         </div>
                     @endif
-                    <div class="d-flex {{ $isOutgoing ? 'flex-row-reverse' : '' }} align-items-center gap-2">
-                        <span class="fw-semibold text-dark">{{ $messageUserName }}</span>
-                        <span class="wd-5 ht-5 bg-gray-400 rounded-circle"></span>
-                        <span class="fs-11 text-muted">{{ optional($message->created_at)->format('d M Y, h:i A') }}</span>
+                    <div class="chat-message-meta {{ $isOutgoing ? 'text-end' : '' }}">
+                        <span class="chat-message-meta__name">{{ $messageUserName }}</span>
+                        <span class="chat-message-meta__time">{{ optional($message->created_at)->format('d M Y, h:i A') }}</span>
                     </div>
                 </div>
 
-                <div class="wd-500 p-3 rounded-5 bg-gray-200 {{ $isOutgoing ? 'ms-auto' : '' }}">
+                <div class="chat-bubble-stack">
                     @if (filled($message->message))
-                        <p class="py-2 px-3 rounded-5 bg-white mb-{{ $message->documents->isNotEmpty() ? '3' : '0' }}">{{ $message->message }}</p>
+                        <div class="chat-bubble chat-bubble--text">
+                            <p>{{ $message->message }}</p>
+                        </div>
                     @endif
 
                     @foreach ($message->documents as $document)
@@ -146,51 +141,50 @@
                             $isImageAttachment = str_starts_with($attachmentMime, 'image/')
                                 || in_array($attachmentExt, ['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'], true);
                         @endphp
-                        <div class="mb-{{ $loop->last ? '0' : '3' }} d-flex align-items-center justify-content-between bg-white border rounded-3 chat-attachment-row">
-                            <div class="d-flex align-items-center overflow-hidden">
+                        <div class="chat-bubble chat-bubble--attachment">
+                            <div class="d-flex align-items-center justify-content-between bg-white border rounded-3 chat-attachment-row">
+                                <div class="d-flex align-items-center overflow-hidden">
+                                    @if ($attachmentUrl !== '')
+                                        <a href="{{ $attachmentUrl }}" target="_blank" rel="noopener noreferrer" class="p-3 d-flex align-items-center border-end text-decoration-none" style="min-width: 56px; min-height: 56px;">
+                                            <i class="feather-paperclip"></i>
+                                        </a>
+                                        <div class="d-block ms-3 overflow-hidden pe-3 py-2">
+                                            <a href="{{ $attachmentUrl }}" target="_blank" rel="noopener noreferrer" class="fs-13 fw-semibold text-dark d-block text-truncate text-decoration-none">{{ $document->original_name ?: 'Attachment' }}</a>
+                                            <small class="text-muted">{{ $document->mime_type ?: 'File' }}</small>
+                                            @if ($isImageAttachment)
+                                                <div class="mt-1">
+                                                    <button
+                                                        type="button"
+                                                        class="btn btn-link p-0 fs-11 js-chat-image-preview"
+                                                        data-image-url="{{ $attachmentUrl }}"
+                                                        data-image-name="{{ $document->original_name ?: 'Attachment' }}"
+                                                    >
+                                                        Preview image
+                                                    </button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="p-3 d-flex align-items-center border-end text-muted" style="min-width: 56px;"><i class="feather-paperclip"></i></span>
+                                        <div class="d-block ms-3 overflow-hidden pe-3 py-2">
+                                            <span class="fs-13 fw-semibold text-muted d-block text-truncate">{{ $document->original_name ?: 'Attachment' }}</span>
+                                            <small class="text-muted">Unavailable</small>
+                                        </div>
+                                    @endif
+                                </div>
                                 @if ($attachmentUrl !== '')
-                                    <a href="{{ $attachmentUrl }}" target="_blank" rel="noopener noreferrer" class="p-3 d-flex align-items-center border-end wd-70 ht-70 text-decoration-none" download>
-                                        <i class="feather-paperclip"></i>
-                                    </a>
-                                    <div class="d-block ms-3 overflow-hidden pe-3">
-                                        <a href="{{ $attachmentUrl }}" target="_blank" rel="noopener noreferrer" class="fs-13 fw-700 text-dark d-block text-truncate">{{ $document->original_name ?: 'Attachment' }}</a>
-                                        <small class="fw-300 text-dark text-uppercase">{{ $document->mime_type ?: 'File' }}</small>
-                                        @if ($isImageAttachment)
-                                            <div class="mt-1">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-link p-0 fs-11 js-chat-image-preview"
-                                                    data-image-url="{{ $attachmentUrl }}"
-                                                    data-image-name="{{ $document->original_name ?: 'Attachment' }}"
-                                                >
-                                                    Preview image
-                                                </button>
-                                            </div>
-                                        @endif
+                                    <div class="d-flex align-items-center p-3 border-start">
+                                        <a
+                                            href="{{ $attachmentUrl }}"
+                                            download="{{ $downloadName }}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            class="chat-composer-btn chat-composer-btn--attach chat-attachment-download"
+                                            title="Download {{ $document->original_name ?: 'attachment' }}"
+                                        >
+                                            <i class="feather-download"></i>
+                                        </a>
                                     </div>
-                                @else
-                                    <span class="p-3 d-flex align-items-center border-end wd-70 ht-70 text-muted" title="File unavailable"><i class="feather-paperclip"></i></span>
-                                    <div class="d-block ms-3 overflow-hidden pe-3">
-                                        <span class="fs-13 fw-700 text-muted d-block text-truncate">{{ $document->original_name ?: 'Attachment' }}</span>
-                                        <small class="fw-300 text-muted text-uppercase">Unavailable</small>
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="d-flex align-items-center p-3 border-start">
-                                @if ($attachmentUrl !== '')
-                                    <a
-                                        href="{{ $attachmentUrl }}"
-                                        download="{{ $downloadName }}"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        class="avatar-text file-download chat-attachment-download"
-                                        title="Download {{ $document->original_name ?: 'attachment' }}"
-                                        style="pointer-events: auto;"
-                                    >
-                                        <i class="feather-download"></i>
-                                    </a>
-                                @else
-                                    <span class="avatar-text file-download text-muted" style="opacity: 0.5;" title="File unavailable"><i class="feather-download"></i></span>
                                 @endif
                             </div>
                         </div>
@@ -198,10 +192,13 @@
                 </div>
             </div>
         @empty
-            <div class="h-100 d-flex align-items-center justify-content-center py-5">
+            <div class="chat-empty-thread">
                 <div class="text-center text-muted">
-                    <i class="feather-message-square fs-1 d-block mb-3"></i>
-                    No messages yet. Start the conversation below.
+                    <div class="chat-empty-thread__icon mx-auto">
+                        <i class="feather-message-circle"></i>
+                    </div>
+                    <h5 class="fw-semibold text-dark mb-2">Start the conversation</h5>
+                    <p class="mb-0 fs-13">Send a message below to connect about this listing.</p>
                 </div>
             </div>
         @endforelse
@@ -230,7 +227,7 @@
             </div>
             <div id="chat-attachment-chips" class="chat-attachment-chips"></div>
         </div>
-        <form id="chat-compose-form" method="POST" action="{{ route('professional.chat.send') }}" enctype="multipart/form-data" class="chat-composer-form d-flex align-items-stretch justify-content-between bg-white">
+        <form id="chat-compose-form" method="POST" action="{{ route('professional.chat.send') }}" enctype="multipart/form-data" class="chat-composer-form d-flex align-items-end bg-white">
             @csrf
             @if ($isProfessional)
                 <input type="hidden" name="user_id" value="{{ $selectedUserId ?? 0 }}">
@@ -239,40 +236,33 @@
             @endif
             <input type="hidden" name="project_id" value="{{ $selectedProjectId }}">
 
-            <div class="d-flex align-items-stretch">
-                <label class="border-end border-gray-5 mb-0 c-pointer d-flex align-items-center" for="chat-attachments">
-                    <span class="wd-60 d-flex align-items-center justify-content-center" data-bs-toggle="tooltip" title="Attach files (multiple)" style="min-height: 59px">
-                        <i class="feather-paperclip"></i>
-                    </span>
+            <div class="chat-composer-inner flex-grow-1">
+                <label class="chat-composer-btn chat-composer-btn--attach mb-0" for="chat-attachments" data-bs-toggle="tooltip" title="Attach files">
+                    <i class="feather-paperclip"></i>
                 </label>
                 <input id="chat-attachments" type="file" name="attachments[]" class="d-none" multiple>
-            </div>
-
-            <textarea
-                id="chat-message-input"
-                class="form-control border-0 chat-message-input"
-                name="message"
-                rows="1"
-                placeholder="Type your message here..."
-                autocomplete="off"
-                style="padding-top: 20px;"
-            >{{ old('message') }}</textarea>
-
-            <button type="submit" id="chat-send-btn" class="border-start border-gray-5 send-message bg-transparent border-0">
-                <span class="wd-60 d-flex align-items-center justify-content-center" data-bs-toggle="tooltip" title="Send Message" style="min-height: 59px">
+                <textarea
+                    id="chat-message-input"
+                    class="form-control chat-message-input flex-grow-1"
+                    name="message"
+                    rows="1"
+                    placeholder="Write a message…"
+                    autocomplete="off"
+                >{{ old('message') }}</textarea>
+                <button type="submit" id="chat-send-btn" class="chat-composer-btn chat-composer-btn--send" data-bs-toggle="tooltip" title="Send message">
                     <i class="feather-send"></i>
-                </span>
-            </button>
+                </button>
+            </div>
         </form>
     </div>
 @else
-    <div class="h-100 d-flex align-items-center justify-content-center p-5 bg-white">
+    <div class="chat-empty-panel">
         <div class="text-center" style="max-width: 420px;">
-            <div class="avatar-text avatar-xxl bg-soft-primary text-primary mx-auto mb-4">
+            <div class="chat-empty-thread__icon mx-auto">
                 <i class="feather-message-square"></i>
             </div>
-            <h4 class="fw-bold text-dark mb-2">No chat selected</h4>
-            <p class="text-muted mb-0">Choose a conversation from the left to review listing enquiries and reply from your professional dashboard.</p>
+            <h4 class="fw-bold text-dark mb-2">Select a conversation</h4>
+            <p class="text-muted mb-0 fs-13">Pick a conversation from the inbox to read messages and send a reply.</p>
         </div>
     </div>
 @endif
