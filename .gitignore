@@ -21,3 +21,4 @@ yarn-error.log
 app.zip
 app/Providers.zip
 .DS_Store
+/database/*.sql

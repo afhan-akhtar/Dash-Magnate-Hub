@@ -64,7 +64,7 @@ class User extends Authenticatable
         'capitalization_overview',
     ];
 
-    protected $hidden = ['password'];
+    protected $hidden = ['password', 'remember_token'];
 
     protected $casts = [
         'otp'             => 'integer',
