@@ -16,19 +16,21 @@ class StoreProjectRequest extends FormRequest
     {
         $type = (int) ($this->input('type') ?: session()->get('type', 0));
         $isSaleListing = in_array($type, [2, 4], true);
+        $isCapitalRaiseListing = $type === 3;
+        $isGuidedListing = $isSaleListing || $isCapitalRaiseListing;
 
         return [
             'type' => ['required', 'integer', Rule::in([1, 2, 3, 4])],
-            'name' => ['required', 'string', 'max:255'],
-            'category_id' => [$isSaleListing ? 'required' : 'nullable', 'integer', 'exists:categories,id'],
+            'name' => [$isSaleListing ? 'nullable' : 'required', 'string', 'max:255'],
+            'category_id' => [$isGuidedListing ? 'required' : 'nullable', 'integer', 'exists:categories,id'],
             'location_id' => ['required', 'integer', 'exists:locations,id'],
             'region_id' => ['nullable', 'integer', 'exists:regions,id'],
-            'description' => [$isSaleListing ? 'required' : 'nullable', 'string'],
+            'description' => ['nullable', 'string'],
             'price' => [$isSaleListing ? 'required' : 'nullable', 'numeric', 'min:0'],
             'trading' => [$isSaleListing ? 'required' : 'nullable', 'string', 'max:255'],
             'earning_type' => ['nullable', 'string', 'max:255'],
             'stock_level' => ['nullable', 'string', 'max:255'],
-            'summary' => [$isSaleListing ? 'required' : 'nullable', 'string'],
+            'summary' => ['nullable', 'string'],
             'location_information' => ['nullable', 'string'],
             'skills' => ['nullable', 'string'],
             'potential' => ['nullable', 'string'],

@@ -9,6 +9,7 @@ use App\Models\Location;
 use App\Models\Project;
 use App\Models\Region;
 use App\Services\FileUploadService;
+use App\Services\ProfessionalPortalSessionService;
 use App\Services\ProjectService;
 use App\Services\SubscriptionService;
 use Illuminate\Http\RedirectResponse;
@@ -21,7 +22,8 @@ class ProjectController extends Controller
     public function __construct(
         private ProjectService $projects,
         private FileUploadService $fileUpload,
-        private SubscriptionService $subscription
+        private SubscriptionService $subscription,
+        private ProfessionalPortalSessionService $portalSession
     ) {}
 
     public function index(): View
@@ -43,10 +45,11 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
         /** @var \App\Models\User $professional */
         $professional = Auth::user();
+        $this->portalSession->sync($request, $professional);
         $activePlan = $this->subscription->getActivePlan($professional);
 
         return view('professional.dashboard.listings.create', [
@@ -56,6 +59,7 @@ class ProjectController extends Controller
             'hasQuota' => $this->subscription->hasListingQuota($professional),
             'hasNoPlan' => !$activePlan,
             'activePlan' => $activePlan,
+            'listingType' => (int) session()->get('type', 0),
         ]);
     }
 
@@ -77,22 +81,28 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function edit(int $id): View
+    public function edit(Request $request, int $id): View
     {
         /** @var \App\Models\User $professional */
         $professional = Auth::user();
+        $this->portalSession->sync($request, $professional);
 
         $project = Project::with(['thumbnail', 'documents'])
             ->where('professional_id', $professional->id)
             ->findOrFail($id);
         $projectType = (int) $project->type;
-        if (!in_array($projectType, [1, 2, 3, 4], true)) {
-            $projectType = (int) session()->get('type', 2);
+        if (! in_array($projectType, [1, 2, 3, 4], true)) {
+            $projectType = (int) session()->get('type', 0);
         }
-        if (!in_array($projectType, [1, 2, 3, 4], true)) {
-            $projectType = 2;
+        if (! in_array($projectType, [1, 2, 3, 4], true)) {
+            $projectType = match ($professional->role) {
+                'buyer' => 1,
+                'seller' => 2,
+                'capital_raiser' => 3,
+                'broker' => 4,
+                default => 2,
+            };
         }
-        $isSaleListing = in_array($projectType, [2, 4], true);
 
         return view('professional.dashboard.listings.edit', [
             'project' => $project,
@@ -100,7 +110,6 @@ class ProjectController extends Controller
             'locations' => Location::with('regions')->orderBy('name')->get(),
             'regions' => Region::orderBy('name')->get(),
             'projectType' => $projectType,
-            'isSaleListing' => $isSaleListing,
         ]);
     }
 
@@ -120,7 +129,7 @@ class ProjectController extends Controller
                 ->withErrors(['name' => $errorMsg]);
         }
 
-        $validated = $request->validated();
+        $validated = $this->prepareSellerListingPayload($request->validated(), (int) session()->get('type', 0));
         $validated['type'] = (int) session()->get('type', 0);
         $validated = array_merge($validated, $this->normalizeListingTags([
             'franchise' => $request->boolean('franchise'),
@@ -166,7 +175,10 @@ class ProjectController extends Controller
             ->where('professional_id', $professional->id)
             ->findOrFail($id);
 
-        $validated = $request->validated();
+        $validated = $this->prepareSellerListingPayload(
+            $request->validated(),
+            (int) ($request->input('type') ?: $project->type)
+        );
         unset($validated['card'], $validated['gallery'], $validated['remove_card'], $validated['remove_gallery']);
         $validated = array_merge($validated, $this->normalizeListingTags([
             'franchise' => $request->boolean('franchise'),
@@ -332,6 +344,19 @@ class ProjectController extends Controller
             'sold' => 0,
             'under_offer' => 0,
         ];
+    }
+
+    private function prepareSellerListingPayload(array $validated, int $type): array
+    {
+        if (! in_array($type, [2, 4], true)) {
+            return $validated;
+        }
+
+        $validated['name'] = trim((string) ($validated['name'] ?? '')) ?: 'Listing';
+        $validated['description'] = (string) ($validated['description'] ?? '');
+        $validated['summary'] = $validated['summary'] ?? null;
+
+        return $validated;
     }
 }
 

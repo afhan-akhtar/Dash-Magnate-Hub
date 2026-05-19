@@ -12,6 +12,41 @@
 
 @section('styles')
 <style>
+    /* Round profile avatars (theme sets img { border-radius: 3px }) */
+    .apps-chat .avatar-image,
+    .apps-chat .single-chat-item .avatar-image,
+    .apps-chat .content-area-header .avatar-image,
+    .apps-chat #chat-conversation-list .avatar-image,
+    .apps-chat .flex-shrink-0 > .avatar-image {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        border-radius: 50% !important;
+        overflow: hidden !important;
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
+    }
+    .apps-chat .avatar-image img,
+    .apps-chat .single-chat-item .avatar-image img,
+    .apps-chat .content-area-header .avatar-image img,
+    .apps-chat #chat-conversation-list .avatar-image img {
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        object-fit: cover !important;
+        border-radius: 50% !important;
+        display: block;
+    }
+    .apps-chat .avatar-text.rounded-circle,
+    .apps-chat .single-chat-item .avatar-text:not(.file-download):not(.avatar-xxl),
+    .apps-chat .content-area-header .avatar-text:not(.avatar-md),
+    .apps-chat #chat-conversation-list .avatar-text:not(.avatar-xs):not(.avatar-sm) {
+        border-radius: 50% !important;
+    }
+
     /* Chat column: scroll messages, composer fixed at bottom of panel */
     .apps-chat .main-content.apps-chat-layout {
         align-items: stretch;
@@ -300,10 +335,18 @@
                             @php
                                 $conversationProject = $conversation->project;
                                 $listingName = $conversationProject?->name ?: 'Listing enquiry';
-                                $conversationAvatar = optional($conversationProject?->thumbnail)->url;
-                                if (blank($conversationAvatar) && filled($conversationProject?->card)) {
-                                    $conversationAvatar = $conversationProject->card;
+                                $listingAvatar = optional($conversationProject?->thumbnail)->url;
+                                if (blank($listingAvatar) && filled($conversationProject?->card)) {
+                                    $listingAvatar = $conversationProject->card;
                                 }
+                                $counterpartyUser = $isProfessional ? $conversation->user : $conversation->professional;
+                                $counterpartyProfileUrl = optional($counterpartyUser?->document('profile')->first())->url;
+                                $conversationAvatar = filled($counterpartyProfileUrl)
+                                    ? $counterpartyProfileUrl
+                                    : $listingAvatar;
+                                $conversationAvatarLabel = $isProfessional
+                                    ? ($counterpartyUser?->name ?: $listingName)
+                                    : $listingName;
 
                                 if ($isProfessional) {
                                     $isSelected = ($selectedUserId ?? 0) === (int) $conversation->user_id && $selectedProjectId === (int) $conversation->project_id;
@@ -323,11 +366,11 @@
                             >
                                 <div class="flex-shrink-0">
                                     @if ($conversationAvatar)
-                                        <div class="avatar-image" style="align-items: unset;">
-                                            <img src="{{ $conversationAvatar }}" class="img-fluid" alt="{{ $listingName }}">
+                                        <div class="avatar-image">
+                                            <img src="{{ $conversationAvatar }}" alt="{{ $listingName }}">
                                         </div>
                                     @else
-                                        <div class="avatar-text bg-primary text-white">{{ strtoupper(Str::substr($listingName, 0, 1)) }}</div>
+                                        <div class="avatar-text bg-primary text-white rounded-circle">{{ strtoupper(Str::substr($conversationAvatarLabel, 0, 1)) }}</div>
                                     @endif
                                 </div>
                                 <div class="ms-3 item-desc flex-grow-1 overflow-hidden">

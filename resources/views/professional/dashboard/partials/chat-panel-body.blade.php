@@ -12,6 +12,16 @@
     if (blank($listingAvatar) && filled($selectedProject?->card)) {
         $listingAvatar = $selectedProject->card;
     }
+
+    $currentProfessional = auth()->user();
+    $counterparty = $isProfessional
+        ? (optional($selectedConversation)->user ?? null)
+        : (optional($selectedConversation)->professional ?? null);
+    $counterpartyProfileUrl = optional($counterparty?->document('profile')->first())->url;
+    $currentProfessionalProfileUrl = optional($currentProfessional?->document('profile')->first())->url;
+
+    $headerAvatar = filled($counterpartyProfileUrl) ? $counterpartyProfileUrl : $listingAvatar;
+    $headerLabel = $counterparty?->name ?: $listingName;
     $lastMessage = $messages->last();
     $lastMessagePreview = trim((string) optional($lastMessage)->message);
     if ($lastMessagePreview === '' && $lastMessage && $lastMessage->documents->isNotEmpty()) {
@@ -29,15 +39,15 @@
                 <i class="feather-align-left fs-20"></i>
             </a>
             <div class="d-flex align-items-center gap-3">
-                @if ($listingAvatar)
-                    <div class="avatar-image" style="align-items: unset;">
-                        <img src="{{ $listingAvatar }}" class="img-fluid" alt="{{ $listingName }}">
+                @if ($headerAvatar)
+                    <div class="avatar-image">
+                        <img src="{{ $headerAvatar }}" alt="{{ $headerLabel }}">
                     </div>
                 @else
-                    <div class="avatar-text bg-primary text-white">{{ strtoupper(Str::substr($listingName, 0, 1)) }}</div>
+                    <div class="avatar-text bg-primary text-white rounded-circle">{{ strtoupper(Str::substr($headerLabel, 0, 1)) }}</div>
                 @endif
                 <div>
-                    <div class="fw-bold d-flex align-items-center">{{ $listingName }}</div>
+                    <div class="fw-bold d-flex align-items-center">{{ $headerLabel }}</div>
                     <div class="fs-12 text-muted mt-1">
                         {{ $listingName }}
                         @if ($selectedProject)
@@ -71,15 +81,37 @@
         @forelse ($messages as $message)
             @php
                 $isOutgoing = $isProfessional ? ((int) $message->send === 0) : ((int) $message->send === 1);
-                $messageUserName = $listingName;
-                $messageAvatar = $listingAvatar;
+
+                if ($isProfessional) {
+                    if ($isOutgoing) {
+                        $messageUserName = $currentProfessional?->name ?: 'You';
+                        $messageAvatar = filled($currentProfessionalProfileUrl) ? $currentProfessionalProfileUrl : null;
+                    } else {
+                        $messageUserName = $message->user?->name ?: ($counterparty?->name ?: $listingName);
+                        $messageAvatar = optional($message->user?->document('profile')->first())->url
+                            ?: (filled($counterpartyProfileUrl) ? $counterpartyProfileUrl : null);
+                    }
+                } else {
+                    if ($isOutgoing) {
+                        $messageUserName = $message->user?->name ?: 'You';
+                        $messageAvatar = optional($message->user?->document('profile')->first())->url;
+                    } else {
+                        $messageUserName = $message->professional?->name ?: ($counterparty?->name ?: $listingName);
+                        $messageAvatar = optional($message->professional?->document('profile')->first())->url
+                            ?: (filled($counterpartyProfileUrl) ? $counterpartyProfileUrl : null);
+                    }
+                }
+
+                if (blank($messageAvatar)) {
+                    $messageAvatar = $listingAvatar;
+                }
             @endphp
 
             <div class="single-chat-item mb-5">
                 <div class="d-flex {{ $isOutgoing ? 'flex-row-reverse' : '' }} align-items-center gap-3 mb-3">
                     @if ($messageAvatar)
-                        <div class="avatar-image" style="align-items: unset;">
-                            <img src="{{ $messageAvatar }}" class="img-fluid rounded-circle" alt="{{ $messageUserName }}">
+                        <div class="avatar-image">
+                            <img src="{{ $messageAvatar }}" alt="{{ $messageUserName }}">
                         </div>
                     @else
                         <div class="avatar-text {{ $isOutgoing ? 'bg-dark text-white' : 'bg-primary text-white' }} rounded-circle">

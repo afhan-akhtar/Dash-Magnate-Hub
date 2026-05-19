@@ -1,8 +1,10 @@
 @extends('professional.dashboard.layouts.app')
 
 @php
-    $currentType = (int) session()->get('type', 0);
-    $isSaleListing = in_array($currentType, [2, 4], true);
+    use App\Support\ListingFormType;
+
+    extract(ListingFormType::resolve(isset($listingType) ? (int) $listingType : null, null));
+
     $fieldHelp = config('listing_field_help', []);
     $fieldDescription = fn (string $field) => trim((string) data_get($fieldHelp, $field . '.description', ''));
     $fieldExample = fn (string $field) => trim((string) data_get($fieldHelp, $field . '.example', ''));
@@ -37,23 +39,7 @@
 @section('page_summary', 'Create a new listing in one continuous form, with fields matched to the selected professional role.')
 
 @section('content')
-<style>
-    .listing-form-grid > [class*="col-"] {
-        transition: min-height 0.15s ease;
-    }
-
-    .listing-form-grid textarea.form-control {
-        border: 1px solid #ced4da;
-        border-radius: 10px;
-        padding: 0.7rem 0.85rem;
-        background-color: #fff;
-    }
-
-    .listing-form-grid textarea.form-control:focus {
-        border-color: #5e72e4;
-        box-shadow: 0 0 0 0.2rem rgba(94, 114, 228, 0.15);
-    }
-</style>
+@include('professional.dashboard.listings.partials.listing-field-styles')
 <main class="nxl-container">
     <div class="nxl-content">
         @if ($errors->any())
@@ -113,203 +99,65 @@
                     <div class="card-header d-flex flex-wrap align-items-center justify-content-between gap-3">
                         <div>
                             <h5 class="card-title mb-1">{{ $typeLabel }}</h5>
-                            <div class="text-muted">The form below follows the raising workflow, so only the fields relevant to this role are shown.</div>
+                            <div class="text-muted">@if ($isCapitalRaiseListing)Use the guided sections below — each field includes an example and tip to help you attract the right investors.@elseif ($isBrokerListing)Use the guided sections below — each field includes an example and tip to help you attract serious buyers for broker and franchise opportunities.@elseif ($isSaleListing)Use the guided sections below — each field includes an example and tip to help you attract serious buyers.@elseThe form below follows the raising workflow, so only the fields relevant to this role are shown.@endif</div>
                         </div>
-                        <span class="badge bg-light text-dark">{{ $activePlan?->listing_limit === null ? 'Unlimited listings' : ($activePlan?->listing_limit ? $activePlan->listing_limit . ' listing limit' : 'No active plan') }}</span>
+                        <span class="badge listing-plan-limit-badge">{{ $activePlan?->listing_limit === null ? 'Unlimited listings' : ($activePlan?->listing_limit ? $activePlan->listing_limit . ' listing limit' : 'No active plan') }}</span>
                     </div>
                     <div class="card-body">
-                        <div class="row g-4 listing-form-grid">
-                            <div class="col-md-4">
-                                <label class="form-label {{ $isSaleListing ? 'required' : '' }}">Category</label>
-                                <select class="form-control" name="category_id" {{ $isSaleListing ? 'required' : '' }}>
-                                    <option value="">Select category</option>
-                                    @foreach ($categories as $category)
-                                        <option value="{{ $category->id }}" {{ (string) old('category_id') === (string) $category->id ? 'selected' : '' }}>
-                                            {{ $category->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                {!! $fieldLabelWithTip('Location', 'location_id', true) !!}
-                                @if ($fieldDescription('location_id'))
-                                    <div class="form-text mb-2">{{ $fieldDescription('location_id') }}</div>
-                                @endif
-                                <select class="form-control" name="location_id" id="location_id" required>
-                                    <option value="">Select location</option>
-                                    @foreach ($locations as $location)
-                                        <option value="{{ $location->id }}" {{ (string) old('location_id') === (string) $location->id ? 'selected' : '' }}>
-                                            {{ $location->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Region</label>
-                                <select class="form-control" name="region_id" id="region_id">
-                                    <option value="">Select region</option>
-                                    @foreach ($regions as $region)
-                                        <option value="{{ $region->id }}" data-location-id="{{ $region->location_id }}" {{ (string) old('region_id') === (string) $region->id ? 'selected' : '' }}>
-                                            {{ $region->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="row g-4 listing-form-grid listing-form-premium">
+                            @if ($isGuidedListing)
+                                @include('professional.dashboard.listings.partials.listing-essentials', [
+                                    'categories' => $categories,
+                                    'locations' => $locations,
+                                    'regions' => $regions,
+                                    'locationHelpFieldKey' => $isCapitalRaiseListing ? 'capital_location' : 'location_id',
+                                ])
+                            @else
+                                <div class="col-md-4">
+                                    <label class="form-label required">Category</label>
+                                    <select class="form-control" name="category_id" required>
+                                        <option value="">Select category</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}" {{ (string) old('category_id') === (string) $category->id ? 'selected' : '' }}>
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                @include('professional.dashboard.listings.partials.listing-location-field', [
+                                    'locations' => $locations,
+                                    'regions' => $regions,
+                                ])
+                            @endif
 
-                            <div class="col-12">
-                                <label class="form-label required">{{ $isSaleListing ? 'Name' : 'Title' }}</label>
-                                <input type="text" class="form-control" name="name" value="{{ old('name') }}" placeholder="{{ $isSaleListing ? 'Enter business name' : 'Enter listing title' }}" required>
-                            </div>
+                            @unless ($isGuidedListing)
+                                <div class="col-12">
+                                    <label class="form-label required">Title</label>
+                                    <input type="text" class="form-control" name="name" value="{{ old('name') }}" placeholder="Enter listing title" required>
+                                </div>
+                            @endunless
 
                             @if ($isSaleListing)
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Price', 'price', true) !!}
-                                    @if ($fieldDescription('price'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('price') }}</div>
-                                    @endif
-                                    <input type="number" min="0" class="form-control" name="price" value="{{ old('price') }}" placeholder="{{ $fieldPlaceholder('price', 'Enter asking price') }}" required>
-                                    @if ($fieldTip('price'))
-                                        {!! $fieldAfterHelpHtml('price') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Year Trading', 'trading', true) !!}
-                                    @if ($fieldDescription('trading'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('trading') }}</div>
-                                    @endif
-                                    <input type="text" class="form-control" name="trading" value="{{ old('trading') }}" placeholder="{{ $fieldPlaceholder('trading', 'e.g. 6 years') }}" required>
-                                    @if ($fieldTip('trading'))
-                                        {!! $fieldAfterHelpHtml('trading') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    {!! $fieldLabelWithTip('Earning Type', 'earning_type') !!}
-                                    @if ($fieldDescription('earning_type'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('earning_type') }}</div>
-                                    @endif
-                                    <input type="text" class="form-control" name="earning_type" value="{{ old('earning_type') }}" placeholder="{{ $fieldPlaceholder('earning_type', 'e.g. EBITDA') }}">
-                                    @if ($fieldTip('earning_type'))
-                                        {!! $fieldAfterHelpHtml('earning_type') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    {!! $fieldLabelWithTip('Stock Level', 'stock_level') !!}
-                                    @if ($fieldDescription('stock_level'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('stock_level') }}</div>
-                                    @endif
-                                    <input type="text" class="form-control" name="stock_level" value="{{ old('stock_level') }}" placeholder="{{ $fieldPlaceholder('stock_level', 'e.g. inventory value') }}">
-                                    @if ($fieldTip('stock_level'))
-                                        {!! $fieldAfterHelpHtml('stock_level') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-4">
-                                    {!! $fieldLabelWithTip('Business Established', 'business_established') !!}
-                                    @if ($fieldDescription('business_established'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('business_established') }}</div>
-                                    @endif
-                                    <input type="text" class="form-control" name="business_established" value="{{ old('business_established') }}" placeholder="{{ $fieldPlaceholder('business_established', 'e.g. 2015') }}">
-                                    @if ($fieldTip('business_established'))
-                                        {!! $fieldAfterHelpHtml('business_established') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Summary', 'summary', true) !!}
-                                    @if ($fieldDescription('summary'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('summary') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="summary" rows="4" placeholder="{{ $fieldPlaceholder('summary', 'Share a short business summary') }}" required>{{ old('summary') }}</textarea>
-                                    @if ($fieldTip('summary'))
-                                        {!! $fieldAfterHelpHtml('summary') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Location Information</label>
-                                    <textarea class="form-control" name="location_information" rows="4" placeholder="Describe the area, suburb, or business position">{{ old('location_information') }}</textarea>
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Skills', 'skills') !!}
-                                    @if ($fieldDescription('skills'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('skills') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="skills" rows="4" placeholder="{{ $fieldPlaceholder('skills', 'Enter team or business strengths') }}">{{ old('skills') }}</textarea>
-                                    @if ($fieldTip('skills'))
-                                        {!! $fieldAfterHelpHtml('skills') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Potential', 'potential') !!}
-                                    @if ($fieldDescription('potential'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('potential') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="potential" rows="4" placeholder="{{ $fieldPlaceholder('potential', 'Describe growth potential') }}">{{ old('potential') }}</textarea>
-                                    @if ($fieldTip('potential'))
-                                        {!! $fieldAfterHelpHtml('potential') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Hours', 'hours') !!}
-                                    @if ($fieldDescription('hours'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('hours') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="hours" rows="4" placeholder="{{ $fieldPlaceholder('hours', 'Enter hours of operation') }}">{{ old('hours') }}</textarea>
-                                    @if ($fieldTip('hours'))
-                                        {!! $fieldAfterHelpHtml('hours') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Staff', 'staff') !!}
-                                    @if ($fieldDescription('staff'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('staff') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="staff" rows="4" placeholder="{{ $fieldPlaceholder('staff', 'Enter staffing details') }}">{{ old('staff') }}</textarea>
-                                    @if ($fieldTip('staff'))
-                                        {!! $fieldAfterHelpHtml('staff') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Lease', 'lease') !!}
-                                    @if ($fieldDescription('lease'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('lease') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="lease" rows="4" placeholder="{{ $fieldPlaceholder('lease', 'Enter lease information') }}">{{ old('lease') }}</textarea>
-                                    @if ($fieldTip('lease'))
-                                        {!! $fieldAfterHelpHtml('lease') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Training', 'training') !!}
-                                    @if ($fieldDescription('training'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('training') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="training" rows="4" placeholder="{{ $fieldPlaceholder('training', 'Enter training or handover details') }}">{{ old('training') }}</textarea>
-                                    @if ($fieldTip('training'))
-                                        {!! $fieldAfterHelpHtml('training') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Awards', 'awards') !!}
-                                    @if ($fieldDescription('awards'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('awards') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="awards" rows="4" placeholder="{{ $fieldPlaceholder('awards', 'Enter awards or notable recognitions') }}">{{ old('awards') }}</textarea>
-                                    @if ($fieldTip('awards'))
-                                        {!! $fieldAfterHelpHtml('awards') !!}
-                                    @endif
-                                </div>
-                                <div class="col-md-6">
-                                    {!! $fieldLabelWithTip('Reason For Sale', 'reason_for_sale') !!}
-                                    @if ($fieldDescription('reason_for_sale'))
-                                        <div class="form-text mb-2">{{ $fieldDescription('reason_for_sale') }}</div>
-                                    @endif
-                                    <textarea class="form-control" name="reason_for_sale" rows="4" placeholder="{{ $fieldPlaceholder('reason_for_sale', 'Why is the business being sold?') }}">{{ old('reason_for_sale') }}</textarea>
-                                    @if ($fieldTip('reason_for_sale'))
-                                        {!! $fieldAfterHelpHtml('reason_for_sale') !!}
-                                    @endif
-                                </div>
                                 <div class="col-12">
-                                    <label class="form-label required">Description</label>
-                                    <textarea class="form-control" name="description" rows="5" placeholder="Write the full listing description" required>{{ old('description') }}</textarea>
+                                    <label class="form-label">Name</label>
+                                    <input type="text" class="form-control" name="name" value="{{ old('name') }}" placeholder="Enter business name">
                                 </div>
+                                @include('professional.dashboard.listings.partials.sale-listing-fields', ['listingType' => $currentType])
+                            @elseif ($isCapitalRaiseListing)
+                                <div class="col-12">
+                                    <article class="listing-field-card">
+                                        <header class="listing-field-card__header">
+                                            <h3 class="listing-field-card__title">
+                                                Listing Title
+                                                <span class="listing-required-mark" aria-hidden="true">*</span>
+                                            </h3>
+                                        </header>
+                                        <div class="listing-field-card__input-area" style="border-top: none; padding-top: 0;">
+                                            <input type="text" class="form-control listing-field-card__input" name="name" value="{{ old('name') }}" placeholder="e.g. NovaCare — Seed round capital raise" required>
+                                        </div>
+                                    </article>
+                                </div>
+                                @include('professional.dashboard.listings.partials.capital-raise-listing-fields')
                             @else
                                 <div class="col-md-6">
                                     {!! $fieldLabelWithTip('Seeking Investment', 'seeking_investment', true) !!}
@@ -433,6 +281,7 @@
                                 </div>
                             @endif
 
+                            @if ($isSaleListing)
                             <div class="col-12">
                                 <div class="d-flex flex-wrap gap-4 mt-2">
                                     <div class="form-check form-switch">
@@ -453,8 +302,19 @@
                                     </div>
                                 </div>
                             </div>
+                            @endif
 
-                            <div class="col-md-6">
+                            @if ($isGuidedListing)
+                                <div class="col-12 listing-section-wrap">
+                                    <div class="listing-section-panel">
+                                        @include('professional.dashboard.listings.partials.listing-section-heading', [
+                                            'number' => 5,
+                                            'title' => 'Media',
+                                            'subtitle' => 'Cover image and gallery photos for your listing.',
+                                            'icon' => 'feather-image',
+                                        ])
+                                        <div class="row g-4 listing-media-panel pb-3">
+                            <div class="col-md-6 listing-media-field">
                                 <label class="form-label">Cover Image</label>
                                 <input type="file" class="form-control" name="card" id="card_input" accept="image/*">
                                 <div class="fs-12 text-muted mt-2">Upload the main image for the listing.</div>
@@ -462,20 +322,39 @@
                                     <img src="" alt="Cover preview" id="card_preview" class="img-fluid rounded-3 border">
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6 listing-media-field">
                                 <label class="form-label">Gallery Images</label>
                                 <input type="file" class="form-control" name="gallery[]" id="gallery_input" accept="image/*" multiple>
                                 <div class="fs-12 text-muted mt-2">Add supporting images for the listing.</div>
                                 <div class="row g-2 mt-2" id="gallery_preview"></div>
                             </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
 
-                            <div class="col-12 d-flex flex-wrap align-items-center justify-content-between gap-3 pt-2">
-                                <div class="text-muted">Strong titles, clear information, and quality photos help listings perform better.</div>
-                                <button type="submit" class="btn btn-primary" {{ $hasQuota ? '' : 'disabled' }}>
-                                    <i class="feather-save me-2"></i>
-                                    <span>Create Listing</span>
-                                </button>
+                            @if ($isGuidedListing)
+                                @include('professional.dashboard.listings.partials.listing-form-footer', [
+                                    'submitLabel' => 'Create Listing',
+                                    'cancelUrl' => route('professional.listings.index'),
+                                    'submitDisabled' => ! $hasQuota,
+                                    'hint' => $isCapitalRaiseListing
+                                        ? 'Complete all required fields before publishing your capital raise listing.'
+                                        : ($isBrokerListing
+                                            ? 'Complete all required fields before publishing your broker listing.'
+                                            : 'Complete all required fields before saving your listing.'),
+                                ])
+                            @else
+                            <div class="col-12">
+                                <div class="listing-form-sticky-footer d-flex flex-wrap align-items-center justify-content-between gap-3">
+                                    <p class="text-muted small mb-0">Strong titles, clear information, and quality photos help listings perform better.</p>
+                                    <button type="submit" class="btn btn-primary btn-listing-save" {{ $hasQuota ? '' : 'disabled' }}>
+                                        <i class="feather-save me-2"></i>
+                                        <span>Create Listing</span>
+                                    </button>
+                                </div>
                             </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -629,7 +508,7 @@
                 reader.onload = (event) => {
                     const col = document.createElement('div');
                     col.className = 'col-6 col-md-4';
-                    col.innerHTML = `<img src="${event.target.result}" class="img-fluid rounded-3 border js-listing-image-preview" data-preview-src="${event.target.result}" data-preview-title="${file.name || 'Gallery image'}" alt="Gallery preview" style="height: 120px; object-fit: cover; width: 100%; cursor: zoom-in;">`;
+                    col.innerHTML = `<div class="listing-media-thumb border rounded-3 p-2 h-100"><img src="${event.target.result}" class="img-fluid rounded-2 border js-listing-image-preview" data-preview-src="${event.target.result}" data-preview-title="${file.name || 'Gallery image'}" alt="Gallery preview" style="height: 120px; object-fit: cover; width: 100%; cursor: zoom-in;"></div>`;
                     galleryPreview.appendChild(col);
                 };
                 reader.readAsDataURL(file);

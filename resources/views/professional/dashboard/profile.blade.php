@@ -52,34 +52,10 @@
                             <span class="badge bg-soft-primary text-primary text-uppercase">{{ str_replace('_', ' ', $professional->role) }}</span>
 
                             <div class="row g-3 text-start mt-4">
-                                <div class="col-6">
+                                <div class="col-12">
                                     <div class="border rounded-3 p-3 h-100">
                                         <div class="fs-11 text-muted mb-1">Phone</div>
                                         <div class="fw-semibold text-dark">{{ $professional->phone ?: 'Not added' }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="border rounded-3 p-3 h-100">
-                                        <div class="fs-11 text-muted mb-1">Nationality</div>
-                                        <div class="fw-semibold text-dark">{{ $professional->nationality ?: 'Not added' }}</div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="border rounded-3 p-3 h-100">
-                                        <div class="fs-11 text-muted mb-1">Gender</div>
-                                        <div class="fw-semibold text-dark">
-                                            {{ match((string) $professional->gender) {
-                                                '1' => 'Male',
-                                                '2' => 'Female',
-                                                default => 'Not added',
-                                            } }}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-6">
-                                    <div class="border rounded-3 p-3 h-100">
-                                        <div class="fs-11 text-muted mb-1">Workspace</div>
-                                        <div class="fw-semibold text-dark">{{ session()->get('plan_type') ? 'Premium' : 'Standard' }}</div>
                                     </div>
                                 </div>
                                 @if ($isBroker)
@@ -150,18 +126,6 @@
                                     <div class="col-md-6">
                                         <label class="form-label">Phone</label>
                                         <input type="text" class="form-control" name="phone" value="{{ old('phone', $professional->phone) }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Nationality</label>
-                                        <input type="text" class="form-control" name="nationality" value="{{ old('nationality', $professional->nationality) }}" placeholder="Enter nationality">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Gender</label>
-                                        <select class="form-control" name="gender">
-                                            <option value="">Select gender</option>
-                                            <option value="1" {{ (string) old('gender', $professional->gender) === '1' ? 'selected' : '' }}>Male</option>
-                                            <option value="2" {{ (string) old('gender', $professional->gender) === '2' ? 'selected' : '' }}>Female</option>
-                                        </select>
                                     </div>
                                     @if ($isBroker)
                                         <div class="col-12">
