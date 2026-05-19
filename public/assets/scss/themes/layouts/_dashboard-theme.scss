@@ -1,0 +1,239 @@
+/*
+<--!----------------------------------------------------------------!-->
+<--! Dashboard Theme Unification !-->
+<--!----------------------------------------------------------------!-->
+*/
+
+:root {
+	--dashboard-hover-accent: #4452ea85;
+	--dashboard-active-accent: #4452ea85;
+	--admin-sidebar-accent: #560ce3;
+	--admin-sidebar-text: #000000;
+	--admin-sidebar-text-active: #ffffff;
+	--admin-sidebar-hover-duration: 0.24s;
+	--admin-sidebar-hover-easing: cubic-bezier(0.4, 0, 0.2, 1);
+	--dashboard-button-hover-accent: var(--bs-primary, #560ce3);
+}
+
+.swal2-popup.swal2-toast {
+	max-width: min(560px, 92vw) !important;
+	width: auto !important;
+}
+
+.swal2-container .swal2-popup:not(.swal2-toast) {
+	max-width: min(520px, 92vw) !important;
+	width: auto !important;
+}
+
+.nxl-navigation {
+	.navbar-content {
+		.nxl-link {
+			color: var(--admin-sidebar-text) !important;
+			background-color: transparent !important;
+			text-decoration: none !important;
+			box-shadow: inset 3px 0 0 transparent;
+			transition:
+				background-color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing),
+				color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing),
+				box-shadow var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing) !important;
+
+			.nxl-mtext {
+				color: inherit;
+				transition: color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing) !important;
+			}
+
+			.nxl-micon i {
+				color: var(--admin-sidebar-accent) !important;
+				transition: color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing) !important;
+			}
+		}
+
+		.nxl-navbar > .nxl-item {
+			&.active > .nxl-link,
+			&:hover > .nxl-link,
+			&:focus-within > .nxl-link {
+				color: var(--admin-sidebar-text-active) !important;
+				background-color: var(--admin-sidebar-accent) !important;
+				text-decoration: none !important;
+				box-shadow: inset 3px 0 0 var(--admin-sidebar-accent);
+				transition:
+					background-color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing),
+					color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing),
+					box-shadow var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing) !important;
+
+				.nxl-micon i {
+					color: var(--admin-sidebar-text-active) !important;
+					transition: color var(--admin-sidebar-hover-duration) var(--admin-sidebar-hover-easing) !important;
+				}
+			}
+		}
+	}
+}
+
+.nxl-header {
+	.dropdown-menu .dropdown-item {
+		&:hover,
+		&:focus {
+			background-color: var(--dashboard-hover-accent) !important;
+			transition: background-color 0.2s ease;
+		}
+	}
+
+	.btn:not(.btn-danger):not(.btn-outline-danger):not(.btn-close):not(.btn-link) {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: $white !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+
+	.dropdown-menu .dropdown-item:not(.text-danger) {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: $white !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+}
+
+.nxl-content {
+	.nav-link,
+	.btn-light-brand,
+	.avatar-text,
+	.page-header-right-open-toggle,
+	.page-header-right-close-toggle {
+		&:hover,
+		&:focus {
+			background-color: var(--dashboard-hover-accent) !important;
+			transition: background-color 0.2s ease;
+		}
+	}
+
+	.btn:not(.btn-danger):not(.btn-outline-danger):not(.btn-close):not(.btn-link) {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: $white !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+
+	.dropdown-menu .dropdown-item:not(.text-danger) {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: $white !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+
+	.page-item:not(.active):not(.disabled) .page-link {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+	}
+
+	a.avatar-text:not(.text-danger),
+	button.avatar-text:not(.text-danger) {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: var(--dashboard-button-hover-accent) !important;
+			border-color: var(--dashboard-button-hover-accent) !important;
+			color: $white !important;
+			box-shadow: 0 10px 24px rgba(52, 84, 209, 0.18);
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: $white !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+
+	button.avatar-text.text-danger {
+		&:hover,
+		&:focus,
+		&:focus-visible {
+			background-color: transparent !important;
+			border-color: transparent !important;
+			color: var(--bs-danger, #ea4d4d) !important;
+			box-shadow: none !important;
+		}
+
+		&:hover i,
+		&:focus i,
+		&:focus-visible i,
+		&:hover svg,
+		&:focus svg,
+		&:focus-visible svg {
+			color: currentColor !important;
+			fill: currentColor;
+			stroke: currentColor;
+		}
+	}
+}

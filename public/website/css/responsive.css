@@ -1,0 +1,437 @@
+@media (max-width: 1399px) {
+    .search{
+        margin: 0 10px !important;
+        height: 35px !important;
+        font-size: 14px !important;
+        width: 35px !important;
+    }
+
+    .nav-link{
+        font-size: 13px !important;
+    }
+
+    .right-side{
+        padding-right: 20px !important;
+    }
+
+    .heart i{
+        font-size: 19px !important;
+    }
+
+    .heart span{
+        bottom: 0 !important;
+        height: 13px !important;
+        width: 13px !important;
+    }
+
+    .signin{
+        margin: 0 0 0 10px !important;
+    }
+
+    .f-box span{
+        font-size: 200px !important;
+    }
+
+    .pricing .card .card-block {
+        height: 585px !important;
+    }
+
+    .f-des p{
+        font-size: 13px !important;
+    }
+
+}
+
+
+
+
+
+@media (max-width: 1199px) {
+    .no{
+        display: none;
+    }
+    .n-drop{
+        display: block !important;
+    }
+
+    .n-drop button{
+        box-shadow: 0 0 0 !important;
+        color: #fff;
+        font-weight: 600;
+        font-size: 14px;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+
+    .n-drop a{
+        box-shadow: 0 0 0 !important;
+        font-weight: 600;
+        font-size: 14px;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        font-family: 'Roboto', sans-serif !important;
+    }
+
+    .n-drop button:hover{
+        color: #fff;
+    }
+
+    .navbar-toggler{
+        box-shadow: 0 0 0 !important;
+    }
+
+    .hub p{
+        font-size: 14px !important;
+    }
+
+    .hub h2{
+        font-size: 40px !important;
+    }
+
+    .count h5{
+        font-size: 13px !important;
+    }
+
+    .count p{
+        font-size: 14px !important;
+    }
+
+    .count h2{
+        font-size: 40px !important;
+    }
+    
+    .f-box p{
+        font-size: 14px !important;
+    }
+
+    .f-box h3{
+        font-size: 19px !important;
+    }
+
+    .pricing .card .card-block {
+        height: 660px !important;
+    }
+
+    .pricing .card .list-group-item{
+        font-size: 13px !important;
+    }
+
+    .pricing .card .card-block p{
+        font-size: 13px !important;
+    }
+
+    .pricing .display-2{
+        font-size: 44px !important;
+    }
+
+    .pricing .display-2 .period {
+        margin-left: 8px;
+    }
+
+    .pricing .display-2 .currency{
+        font-size: 35px !important;
+    }
+
+}
+
+
+
+
+@media (max-width: 991px) {
+    .navbar-toggler i{
+        color: #fff;
+    }
+
+    .navbar-toggler-icon{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .no{
+        display: block;
+    }
+    .n-drop{
+        display: none !important;
+    }
+
+    .new-div{
+        display: block !important;
+    }
+
+    .right-side {
+        background: transparent !important;
+    }
+
+    .bannar-text h1{
+        font-size: 45px !important;
+    }
+
+    .pricing .card .card-block{
+        height: 510px !important;
+    }
+}
+
+
+
+
+
+@media (max-width: 767px) {
+    .bannar-text h1{
+        font-size: 33px !important;
+    }
+
+    .bannar{
+        height: 500px !important;
+    }
+
+    .head-para p{
+        font-size: 13px !important;
+    }
+
+    .head-para h2{
+        font-size: 35px  !important;
+    }
+
+    .hub{
+        padding: 50px 0 !important;
+    }
+
+    .img-d{
+        height: 200px !important;
+    }
+
+    .img-d img{
+        height: 100% !important;
+    }
+
+    .text-div h4{
+        font-size: 19px !important;
+    }
+
+    .pricing .card .card-block{
+        height: 585px !important;
+        padding: 0 10px !important;
+    }
+
+    .pricing,
+    .tab-section{
+        padding: 60px 0 !important;
+    }
+
+    .c-ban h2{
+        font-size: 44px !important;
+    }
+
+    .c-ban .listi span{
+        font-size: 18px !important;
+    }
+
+    .c-ban .listi a{
+        font-size: 18px !important;
+    }
+
+    .c-ban .listi i{
+        font-size: 18px !important;
+    }
+
+    .c-c{
+        flex-direction: column-reverse;
+    }
+
+    .ab-count span{
+        font-size: 26px !important;
+    }
+
+    .f-des h4{
+        font-size: 16px !important;
+    }
+
+    .f-des span{
+        font-size: 13px !important;
+    }
+
+    .login-form{
+        border-bottom-left-radius: 20px ;
+        border-top-right-radius: 0px !important;
+    }
+
+    .img-div{
+        border-top-right-radius: 20px;
+        border-bottom-left-radius: 0px !important;
+    }
+}
+
+
+
+
+
+
+
+@media (max-width: 575px) {
+    .right-side{
+        display: block !important;
+        height: auto !important;
+        padding: 30px 0;
+    }
+
+    .signin {
+        margin: 0 0 13px 15px !important;
+    }
+
+    .heart{
+        margin: 10px 15px !important;
+    }
+
+    .heart span{
+        left: 10px !important;
+    }
+
+    .bannar-text h1{
+        font-size: 33px !important;
+    }
+
+    .bannar{
+        height: 560px !important;
+    }
+
+    .bannar-text p{
+        font-size: 12px !important;
+    }
+
+    .select-btn{
+        padding: 0 5px !important;
+    }
+
+    .bannar-bar select{
+        /* margin: 10px 0 20px 0; */
+    }
+
+    .bannar-bar input{
+        /* margin: 0px 0 20px 0; */
+    }
+
+    .listing p{
+        font-size: 13px;
+    }
+
+    .view-box .uper-text h4{
+        font-size: 17px !important;
+    }
+
+    .head-para h2{
+        font-size: 26px !important;
+    }
+
+    .head-para p{
+        font-size: 13px !important;
+    }
+
+    .f-box{
+        margin-top: 10px !important;
+        margin-bottom: 20px !important;
+    }
+
+    .listing2 .uper-text{
+        display: block !important;
+    }
+
+    .listing2 .uper-text h4{
+        padding-bottom: 10px !important;
+        font-size: 20px !important;
+    }
+
+    .tab-section ul.tabs li{
+        font-size: 12px !important;
+    }
+
+    .pricing .card .card-block{
+        height: auto !important;
+    }
+
+    .pricing .card{
+        margin: 10px 0 20px 0 !important;
+    }
+
+    .sub h2{
+        font-size: 25px !important;
+    }
+
+    .sub p{
+        margin-top: 10px !important;
+        font-size: 13px !important;
+    }
+
+    .c-search input {
+        width: 76% !important;
+    }
+
+    .c-list {
+        font-size: 14px !important;
+    }
+
+    .find{
+        display: block !important;
+    }
+
+    .a-d{
+        display: block !important;
+    }
+
+    .a-d a{
+        display: block !important;
+    }
+
+    .blog-des h3{
+        font-size: 18px !important;
+    }
+
+    .blog-des p{
+        font-size: 13px !important;
+    }
+
+    .blog-ban h2{
+        font-size: 20px !important;
+    }
+
+    .list-ban h2{
+        font-size: 20px !important;
+    }
+
+    .quote{
+        padding: 23px !important;
+    }
+
+    .quote i{
+        font-size: 12px !important;
+    }
+
+    .quote .fa-quote-right{
+        font-size: 30px !important;
+    }
+
+    .contact-form{
+        padding: 0px;
+    }
+
+    .f-card a img{
+        height: 200px !important;
+    }
+
+    .cap{
+        font-size: 12px !important;
+    }
+
+    .login-form h2{
+        top: 18px !important;
+    }
+
+    .login-form{
+        padding: 0 25px !important;
+    }
+    
+    .login-form p{
+        font-size: 13px !important;
+    }
+}

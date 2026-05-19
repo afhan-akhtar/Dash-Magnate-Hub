@@ -1,0 +1,6 @@
+Plan Static IDS
+
+Essentials     = 1  Normal 5  | Premium 5
+Premium        = 2  Normal 10  | Premium 10
+Enterprise     = 3  Normal 15  | Premium 15
+Capital Raise  = 4  Normal Unlimited  | Premium Unlimited
